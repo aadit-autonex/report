@@ -61,8 +61,6 @@
 
 ---
 
-## 7. Need to prioritise recall for welding detection
-
 - Accepting some false positives during initial experimentation.
 - I tried increasing the thresholds, but it started missing all the welding frames (again, I think it's mainly due to the data being from the substream).
 
@@ -112,11 +110,6 @@ Read this before starting a new detector experiment.
    - **Gap:** Large.
    - **Change:** per-frame decision by default. Use bursts of consecutive frames when temporal is needed.
 
-3. **Glow = saturation filter + 12px min blob + morph open**
-   - **Result:** erased real (small, distant) arcs.
-   - **Gap:** Large.
-   - **Change:** glow = top 0.01% of V, white or blue, no saturation test, no size floor.
-
 4. **Blue hue marks an arc**
    - **Result:** picked up blue shirts, and tracked the guy in blue every time.
    - **Gap:** Large.
@@ -132,11 +125,6 @@ Read this before starting a new detector experiment.
    - **Gap:** Large. This is the main recall loss.
    - **Change:** bigger ROI (50% margin), person conf 0.45, tiled inference for small people, `tiered` mode (person check last, only lowers the score). Never go back to a hard person gate.
 
-7. **Full-frame masks avoid the missed-person problem**
-   - **Result:** too noisy: skylights, lamps, reflections.
-   - **Gap:** Large.
-   - **Change:** Tier 0 static-brightness map per camera, and candidate regions before scoring.
-
 8. **Fixed HSV thresholds (e.g. V > 240) work everywhere**
    - **Result:** break with exposure and camera changes.
    - **Gap:** Medium.
@@ -146,11 +134,6 @@ Read this before starting a new detector experiment.
    - **Result:** they look different: welding is a glowing blob, cutting is small motion-blurred orange streaks.
    - **Gap:** Medium.
    - **Change:** plan: separate scorers.
-
-10. **Grouping the HSV profile by the detector's own score shows separation**
-    - **Result:** circular. It only proves the detector agrees with itself.
-    - **Gap:** Methodology bug.
-    - **Change:** group only by ground-truth labels (`label-welders.py`).
 
 11. **Sequential sweep over about 50 cameras catches welds**
     - **Result:** short welds start and stop between visits. The Orin also ran hot.
@@ -172,24 +155,9 @@ Read this before starting a new detector experiment.
     - **Gap:** Medium.
     - **Change:** FFmpeg stream copy, falling back to the NVR channel (`record-camera.py`).
 
-15. **Raising thresholds fixes false positives**
-    - **Result:** not verified. It trades directly against recall.
-    - **Gap:** Open.
-    - **Change:** calibrate from labelled data instead of guessing.
-
-## Lessons
-
-- **Try mainstream frames before touching thresholds again.** Most failures (small arcs, far people, smeared sparks) are resolution problems.
-- Every "precision" filter (blob floor, saturation, morph open, hard gate) has cost recall. Add one only with labelled evidence that it helps.
-- Don't draw conclusions from still frames about checks that need motion.
-- Evaluate against labels, never against the detector's own score.
-- Colour cues pick up clothing and PPE on this site (blue shirts, yellow hats).
-
 ## Next to try
 
 - Run all methods on mainstream frames and compare with substream.
 - Hand-drawn ROI for one camera, and test purely on that.
 - Per-camera ignore masks for known false-positive spots.
-- Shape features: reflections are flat and streak-like, arcs are blobs.
-- A small classifier on the brightness/area/contrast features instead of the hand-weighted sum (0.5·contrast + 0.3·distance + 0.2·area).
-- A pose model for crouched welders.
+- maybe try some pose model
