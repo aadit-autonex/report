@@ -23,8 +23,6 @@
   - Run only the HSV masks (removed temporal etc.)
 - **Result:** this led to a lot of FPs (more than the ones I had with temporal).
 
-[weld-test img]()
-
 ---
 
 ## 3. HSV values for welding vs. non-welding frames
@@ -35,7 +33,6 @@
 - **Found out that:**
   - Blue colour dominates more than white.
   - Finding welding based on bright pixels is wrong, because even the pictures that don't have welding still have the brightest pixels somewhere in the ROI.
-  - highly
 
 ---
 
